@@ -120,3 +120,39 @@ Expected playtime for a full clear: roughly 5–8 minutes.
   available, so movement/attack/hurt/death feedback is delivered through
   Animator-driven scale and color animations instead of sprite art.
 - Built and tested against Unity **6000.3.20f1** only.
+
+## Requirements Checklist
+
+Verified against the three course requirement files (`2026פרויקט גמר
+דרישות.docx`, `הנחיות להגשת מטלות.docx`, `Final Projects.pptx`) and, where
+marked, an automated Play-mode run driven end-to-end through Unity's own
+API (Main Menu → Start → clear Level 1/2/3's waves → Victory → Restart →
+damage the player to Game Over → Main Menu), not just a compile check.
+
+| Requirement | Status | Where |
+|---|---|---|
+| Unity 6000.3.20f1 exactly | Done | `ProjectSettings/ProjectVersion.txt`; every batch run in this session used this exact Editor |
+| Basic UI (Start/Pause/End) | Done, automated-verified | `MainMenu.unity`, `UIStateController.cs` — Pause/GameOver/Victory panel switching verified in Play mode |
+| Game State Machine | Done, automated-verified | `GameManager.cs`, `GameState.cs` — all 5 states and their transitions verified |
+| Complex System #1 — Enemy AI | Done | `EnemyAI.cs` (Patrol/Chase/Attack/Dead per enemy) |
+| Complex System #2 — Wave System | Done, automated-verified | `WaveSpawner.cs` — full wave sequencing verified clearing all waves on all 3 levels |
+| Animator / Animations | Done | `Assets/Animations/Player`, `Assets/Animations/Enemy` (Idle/Move/Attack/Hurt/Death) |
+| Events (reduce coupling) | Done | Player/GameManager/Enemy/Wave events — no direct cross-system references for state changes |
+| ScriptableObjects | Done | `EnemyData.cs`, `PowerUpData.cs` + 5 data assets |
+| New Input System only | Done | `GameControls.inputactions`; no `UnityEngine.Input` usage anywhere in the project |
+| Prefabs | Done | 9 prefabs under `Assets/Prefabs` |
+| Scalable code | Done | New enemy/power-up type = new asset, not new code; new level = new scene + wave config |
+| ~3 levels | Done | Level1 (1 wave) → Level2 (2 waves) → Level3 (3 waves) |
+| No game-breaking bugs | Done, automated-verified | Full flow completed with zero exceptions in the final automated run; one real bug found and fixed (see below) |
+| Visual Studio 2022 integration | Done | `com.unity.ide.visualstudio` package; `.sln`/`.csproj` regenerate correctly on each compile (not version-controlled, standard practice) |
+
+### Bugs found and fixed during development
+- **Enemy prefabs on the wrong physics layer** — `Enemy_Grunt`/`Enemy_Brute`
+  were saved on the Default layer instead of the Enemy layer, so the
+  player's attack never registered a hit and waves could never clear.
+  Fixed by correcting `m_Layer` on both prefabs.
+- **`GameManager` NullReferenceException on scene load** — the per-scene
+  duplicate `GameManager` (which self-destroys since only the first one
+  persists) still tried to unsubscribe input events it never subscribed
+  to. Fixed by guarding `OnEnable`/`OnDisable` with an `Instance == this`
+  check.

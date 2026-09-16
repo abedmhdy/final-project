@@ -39,6 +39,10 @@ public class GameManager : MonoBehaviour
 
     private void OnEnable()
     {
+        // A duplicate GameManager returns early in Awake without becoming
+        // Instance, so it has no pauseAction to wire up - skip it.
+        if (Instance != this) return;
+
         pauseAction.Enable();
         pauseAction.performed += OnPausePerformed;
         PlayerHealth.OnPlayerDied += HandlePlayerDied;
@@ -46,6 +50,8 @@ public class GameManager : MonoBehaviour
 
     private void OnDisable()
     {
+        if (Instance != this) return;
+
         pauseAction.performed -= OnPausePerformed;
         pauseAction.Disable();
         PlayerHealth.OnPlayerDied -= HandlePlayerDied;
