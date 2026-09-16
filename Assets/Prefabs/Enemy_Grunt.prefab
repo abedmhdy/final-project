@@ -189,7 +189,7 @@ GameObject:
   - component: {fileID: 1807573277267813109}
   - component: {fileID: 7696316568020944394}
   - component: {fileID: 8982300142546407880}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Enemy_Grunt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
