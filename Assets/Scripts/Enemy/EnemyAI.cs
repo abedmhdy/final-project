@@ -8,10 +8,8 @@ public enum EnemyState
     Dead
 }
 
-// Simple state machine for one enemy: it patrols between points until the
-// player enters its detection range, chases the player, and attacks once
-// in range. All tuning values come from the EnemyData asset so new enemy
-// types don't need new code.
+// All tuning values come from the EnemyData asset, so new enemy types
+// don't need new code.
 [RequireComponent(typeof(Rigidbody2D))]
 public class EnemyAI : MonoBehaviour
 {

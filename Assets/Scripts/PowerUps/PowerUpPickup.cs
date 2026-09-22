@@ -1,7 +1,5 @@
 using UnityEngine;
 
-// Sits on a pickup prefab in the level. Applies its PowerUpData to
-// whichever player walks into it, then removes itself.
 public class PowerUpPickup : MonoBehaviour
 {
     [SerializeField] private PowerUpData powerUpData;

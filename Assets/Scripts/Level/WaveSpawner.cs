@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// One enemy to spawn at one point, using its own EnemyData-driven prefab.
 [Serializable]
 public class EnemySpawnInfo
 {

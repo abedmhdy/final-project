@@ -2,9 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Handles the player's melee attack: reads the Attack action, plays the
-// attack animation, and damages any enemy inside a small circle in front
-// of the player.
 public class PlayerCombat : MonoBehaviour
 {
     [SerializeField] private InputActionAsset inputActions;

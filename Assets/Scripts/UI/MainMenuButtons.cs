@@ -1,6 +1,5 @@
 using UnityEngine;
 
-// Button handlers for the Main Menu scene.
 public class MainMenuButtons : MonoBehaviour
 {
     public void OnStartButtonPressed()

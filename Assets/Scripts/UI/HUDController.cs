@@ -1,9 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-// Updates the in-level HUD (health bar and wave counter) by listening to
-// events from the player and the wave spawner instead of polling them
-// every frame.
 public class HUDController : MonoBehaviour
 {
     [SerializeField] private Slider healthSlider;

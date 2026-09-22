@@ -3517,11 +3517,9 @@ MonoBehaviour:
       spawnPoint: {fileID: 932816750}
     - enemyPrefab: {fileID: 5230260685523997180, guid: d6a6a45b47dee2246b5d1747f211c6a1, type: 3}
       spawnPoint: {fileID: 223461777}
-    - enemyPrefab: {fileID: 5230260685523997180, guid: d6a6a45b47dee2246b5d1747f211c6a1, type: 3}
-      spawnPoint: {fileID: 940077999}
     - enemyPrefab: {fileID: 5326578899670590840, guid: 66938f132ecaf5e44b1a10b25dfdc386, type: 3}
       spawnPoint: {fileID: 2037781738}
-    delayBeforeWave: 2
+    delayBeforeWave: 3
   exitDoor: {fileID: 1796555568}
 --- !u!4 &1591510468
 Transform:

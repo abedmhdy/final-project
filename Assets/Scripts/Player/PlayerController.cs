@@ -2,9 +2,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Reads movement input through the New Input System and moves the player
-// with physics. FixedUpdate naturally stops running when the game is
-// paused (Time.timeScale = 0), so no extra pause checks are needed here.
+// FixedUpdate naturally stops running when the game is paused
+// (Time.timeScale = 0), so no extra pause checks are needed here.
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
