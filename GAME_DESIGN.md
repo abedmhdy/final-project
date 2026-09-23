@@ -1,5 +1,7 @@
 # Dungeon Crawler — Final Project Description
-
+name: abed elmhdy 214907099
+name: shahed abu amar 213651292
+link for git : https://github.com/abedmhdy/final-project.git
 ## Game Name
 Dungeon Crawler
 
