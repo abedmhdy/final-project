@@ -9,7 +9,8 @@ public enum EnemyState
 }
 
 // All tuning values come from the EnemyData asset, so new enemy types
-// don't need new code.
+// don't need new code. Facing uses SpriteRenderer.flipX rather than the
+// Visual's scale, because the Animator animates that scale every frame.
 [RequireComponent(typeof(Rigidbody2D))]
 public class EnemyAI : MonoBehaviour
 {
@@ -23,6 +24,7 @@ public class EnemyAI : MonoBehaviour
     private Transform player;
     private PlayerHealth playerHealth;
     private Animator animator;
+    private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
 
     private int currentPatrolIndex;
@@ -31,6 +33,7 @@ public class EnemyAI : MonoBehaviour
     private void Awake()
     {
         animator = visual.GetComponent<Animator>();
+        spriteRenderer = visual.GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -110,6 +113,7 @@ public class EnemyAI : MonoBehaviour
     private void UpdateAttack(float distanceToPlayer)
     {
         rb.linearVelocity = Vector2.zero;
+        FaceTowards(player.position.x - transform.position.x);
 
         if (distanceToPlayer > enemyData.attackRange)
         {
@@ -129,12 +133,15 @@ public class EnemyAI : MonoBehaviour
     {
         Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
         rb.linearVelocity = direction * enemyData.moveSpeed;
+        FaceTowards(direction.x);
+    }
 
-        if (Mathf.Abs(direction.x) > 0.01f)
+    // Enemy sprites are drawn facing left, so flip them when heading right.
+    private void FaceTowards(float directionX)
+    {
+        if (Mathf.Abs(directionX) > 0.01f)
         {
-            Vector3 scale = visual.localScale;
-            scale.x = Mathf.Abs(scale.x) * Mathf.Sign(direction.x);
-            visual.localScale = scale;
+            spriteRenderer.flipX = directionX > 0f;
         }
     }
 

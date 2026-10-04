@@ -47,17 +47,28 @@ responsibility. They mostly talk to each other through C# events instead
 of direct references, so a system can be replaced or extended without
 rewriting the others.
 
-**Game State Machine (`GameManager`)** — the single source of truth for
-whether the game is at the Main Menu, Playing, Paused, Game Over, or
-Victory. It is the only class allowed to change the state, owns
-`Time.timeScale` and scene loading, and persists across scene loads. Every
-other system reacts to state changes through the `OnGameStateChanged`
-event rather than being told directly what to show.
+**Game State Machine (`GameStateManager`)** — the single source of truth
+for whether the game is at the Main Menu, Playing, Paused, Game Over, or
+Victory. Its only jobs are holding the current state, changing it, and
+raising the `OnGameStateChanged` event. It is a small static class and
+knows nothing about scenes, levels or `Time.timeScale`. Every other system
+reacts to state changes through that event rather than being told
+directly what to show.
+
+**Game Flow (`GameManager`)** — runs the actual game flow: starting the
+game, loading the next level, restarting, pausing/resuming
+(`Time.timeScale`), victory, game over and returning to the main menu. It
+owns scene loading and the current level index, and persists across scene
+loads. Whenever the flow needs a new state it calls
+`GameStateManager.ChangeState(...)`; it never stores the state itself.
 
 **Player systems (`PlayerController`, `PlayerCombat`, `PlayerHealth`)** —
 movement, melee attacking, and health are three small classes instead of
 one large "Player" god-class. `PlayerHealth` raises `OnHealthChanged` and
 `OnPlayerDied` events; it has no idea the UI or the GameManager exist.
+The player (and every enemy) faces left/right by flipping its
+`SpriteRenderer` (`flipX`); the melee attack circle is mirrored to the
+side the player faces.
 
 **Enemy AI — Complex System #1 (`EnemyAI`, `EnemyHealth`, `EnemyData`)** —
 every enemy runs its own 4-state machine (Patrol → Chase → Attack → Dead).
@@ -73,14 +84,17 @@ spawns one wave, waits (via each enemy's `OnDied` event) until every enemy
 in that wave is dead, then starts the next wave. When the last wave is
 cleared it unlocks that level's `ExitDoor`.
 
-**Power-Up System (`PowerUpData`, `PowerUpPickup`)** — pickups are
-configured entirely through `PowerUpData` ScriptableObject assets (type,
-value, duration). Adding a new power-up type is a new asset, not new
-classes.
+**Power-Ups (`PowerUpData`, `PowerUpPickup`)** — deliberately kept simple
+and built on the existing player components rather than a separate
+system. Each pickup has a `PowerUpData` ScriptableObject asset (type,
+value, duration); `PowerUpPickup` checks the type and calls the matching
+player component: Health → `PlayerHealth.Heal`, SpeedBoost →
+`PlayerController.ApplySpeedBoost`, DamageBoost →
+`PlayerCombat.ApplyDamageBoost`.
 
 **UI (`UIStateController`, `HUDController`, `MainMenuButtons`,
 `InGameMenuButtons`)** — `UIStateController` listens to
-`GameManager.OnGameStateChanged` and shows/hides the HUD, Pause, Game
+`GameStateManager.OnGameStateChanged` and shows/hides the HUD, Pause, Game
 Over and Victory panels accordingly. `HUDController` listens to
 `PlayerHealth.OnHealthChanged` and `WaveSpawner.OnWaveChanged` to update
 the health bar and wave counter. Buttons call small handler scripts that
@@ -102,8 +116,9 @@ death event to know when to advance, and unlocks the exit door and fires
 
 ## Game State Machine
 `MainMenu → Playing → Paused → Playing → GameOver` or
-`MainMenu → Playing → Victory`. See `Assets/Scripts/Core/GameManager.cs`
-and `Assets/Scripts/Core/GameState.cs`.
+`MainMenu → Playing → Victory`. The state lives in
+`Assets/Scripts/Core/GameStateManager.cs` (enum in `GameState.cs`);
+`Assets/Scripts/Core/GameManager.cs` decides when each transition happens.
 
 ## Levels / Expected Playtime
 3 levels (`Level1`, `Level2`, `Level3`), each a single arena room:
@@ -117,10 +132,21 @@ and `Assets/Scripts/Core/GameState.cs`.
 Expected playtime for a full clear: roughly 5–8 minutes.
 
 ## Additional Notes
-- Character and pickup art is simple procedurally-generated placeholder
-  shapes (colored squares/circles) — there were no external art assets
-  available, so movement/attack/hurt/death feedback is delivered through
-  Animator-driven scale and color animations instead of sprite art.
+- All game art (player, enemies, floor, walls, exit, pickups) comes from
+  Unity Technologies' free **"2D Roguelike | 2D Sample Project"** from the
+  Unity Asset Store (Standard Unity Asset Store EULA), mainly its Urban
+  theme sprite sheet (`Assets/Roguelike2D/TutorialAssets/Sprites/`). Only
+  the sprites were imported, not the sample's scripts, scenes or
+  animations. Collision areas, prefab structure and gameplay are
+  unchanged. The floor and walls use the SpriteRenderer's Tiled draw mode
+  so tiles repeat instead of stretching (each wall's BoxCollider2D size
+  matches its tiled size), and the Brute is drawn 1.3× larger than the
+  Grunt through its SpriteRenderer size. Movement/attack/hurt/death
+  feedback is still delivered through our own Animator-driven scale and
+  color animations.
+  - Player: hooded scavenger. Grunt: pale zombie. Brute: red-shirt zombie.
+  - Health: tomatoes. Speed: soda. Damage: meat (Snow theme sheet).
+  - Exit door: the "EXIT" sign. Floor: dirt tile. Walls: rubble tile.
 - Built and tested against Unity **6000.3.20f1** only.
 
 ## Requirements Checklist
@@ -135,11 +161,11 @@ damage the player to Game Over → Main Menu), not just a compile check.
 |---|---|---|
 | Unity 6000.3.20f1 exactly | Done | `ProjectSettings/ProjectVersion.txt`; every batch run in this session used this exact Editor |
 | Basic UI (Start/Pause/End) | Done, automated-verified | `MainMenu.unity`, `UIStateController.cs` — Pause/GameOver/Victory panel switching verified in Play mode |
-| Game State Machine | Done, automated-verified | `GameManager.cs`, `GameState.cs` — all 5 states and their transitions verified |
+| Game State Machine | Done, automated-verified | `GameStateManager.cs`, `GameState.cs`, `GameManager.cs` — all 5 states and their transitions verified |
 | Complex System #1 — Enemy AI | Done | `EnemyAI.cs` (Patrol/Chase/Attack/Dead per enemy) |
 | Complex System #2 — Wave System | Done, automated-verified | `WaveSpawner.cs` — full wave sequencing verified clearing all waves on all 3 levels |
 | Animator / Animations | Done | `Assets/Animations/Player`, `Assets/Animations/Enemy` (Idle/Move/Attack/Hurt/Death) |
-| Events (reduce coupling) | Done | Player/GameManager/Enemy/Wave events — no direct cross-system references for state changes |
+| Events (reduce coupling) | Done | Player/GameStateManager/Enemy/Wave events — no direct cross-system references for state changes |
 | ScriptableObjects | Done | `EnemyData.cs`, `PowerUpData.cs` + 5 data assets |
 | New Input System only | Done | `GameControls.inputactions`; no `UnityEngine.Input` usage anywhere in the project |
 | Prefabs | Done | 9 prefabs under `Assets/Prefabs` |
@@ -158,3 +184,11 @@ damage the player to Game Over → Main Menu), not just a compile check.
   persists) still tried to unsubscribe input events it never subscribed
   to. Fixed by guarding `OnEnable`/`OnDisable` with an `Instance == this`
   check.
+- **Characters never turned around** — movement code flipped the
+  character's `localScale.x`, but the Animator clips also animate
+  `localScale` and overwrote the flip every frame (and the Brute's larger
+  scale). Fixed by facing with `SpriteRenderer.flipX` and sizing the Brute
+  through its SpriteRenderer, neither of which the Animator touches.
+- **Attacks registered while paused** — input callbacks keep firing when
+  `Time.timeScale` is 0, so one attack could land during Pause/Game
+  Over/Victory. `PlayerCombat` now ignores attacks while time is frozen.

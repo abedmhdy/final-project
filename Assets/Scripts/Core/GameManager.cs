@@ -1,12 +1,13 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-// Tracks the current GameState and is the only class allowed to change it.
-// Persists across scene loads so the state survives from the main menu
-// through all levels. Other systems (UI, player) react to state changes
-// through the OnGameStateChanged event instead of being called directly.
+// Runs the game flow: starting the game, loading levels, restarting,
+// pausing (Time.timeScale), victory, game over and returning to the menu.
+// It does not store the GameState itself - whenever the flow needs a new
+// state it asks GameStateManager, which notifies the rest of the game.
+// Persists across scene loads so the current level survives from the main
+// menu through all levels.
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
@@ -14,9 +15,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private InputActionAsset inputActions;
     [SerializeField] private string[] levelSceneNames = { "Level1", "Level2", "Level3" };
     [SerializeField] private string mainMenuSceneName = "MainMenu";
-
-    public GameState CurrentState { get; private set; } = GameState.MainMenu;
-    public static event Action<GameState> OnGameStateChanged;
 
     private InputAction pauseAction;
     private int currentLevelIndex = -1;
@@ -59,15 +57,16 @@ public class GameManager : MonoBehaviour
 
     private void OnPausePerformed(InputAction.CallbackContext context)
     {
-        if (CurrentState == GameState.Playing) PauseGame();
-        else if (CurrentState == GameState.Paused) ResumeGame();
+        GameState state = GameStateManager.CurrentState;
+        if (state == GameState.Playing) PauseGame();
+        else if (state == GameState.Paused) ResumeGame();
     }
 
     public void StartGame()
     {
         currentLevelIndex = 0;
         Time.timeScale = 1f;
-        SetState(GameState.Playing);
+        GameStateManager.ChangeState(GameState.Playing);
         SceneManager.LoadScene(levelSceneNames[currentLevelIndex]);
     }
 
@@ -81,52 +80,46 @@ public class GameManager : MonoBehaviour
         }
 
         Time.timeScale = 1f;
-        SetState(GameState.Playing);
+        GameStateManager.ChangeState(GameState.Playing);
         SceneManager.LoadScene(levelSceneNames[currentLevelIndex]);
     }
 
     public void RestartLevel()
     {
         Time.timeScale = 1f;
-        SetState(GameState.Playing);
+        GameStateManager.ChangeState(GameState.Playing);
         SceneManager.LoadScene(levelSceneNames[Mathf.Max(currentLevelIndex, 0)]);
     }
 
     public void PauseGame()
     {
         Time.timeScale = 0f;
-        SetState(GameState.Paused);
+        GameStateManager.ChangeState(GameState.Paused);
     }
 
     public void ResumeGame()
     {
         Time.timeScale = 1f;
-        SetState(GameState.Playing);
+        GameStateManager.ChangeState(GameState.Playing);
     }
 
     public void GoToMainMenu()
     {
         Time.timeScale = 1f;
         currentLevelIndex = -1;
-        SetState(GameState.MainMenu);
+        GameStateManager.ChangeState(GameState.MainMenu);
         SceneManager.LoadScene(mainMenuSceneName);
     }
 
     public void TriggerVictory()
     {
         Time.timeScale = 0f;
-        SetState(GameState.Victory);
+        GameStateManager.ChangeState(GameState.Victory);
     }
 
     private void HandlePlayerDied()
     {
         Time.timeScale = 0f;
-        SetState(GameState.GameOver);
-    }
-
-    private void SetState(GameState newState)
-    {
-        CurrentState = newState;
-        OnGameStateChanged?.Invoke(newState);
+        GameStateManager.ChangeState(GameState.GameOver);
     }
 }
