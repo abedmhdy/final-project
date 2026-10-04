@@ -189,6 +189,7 @@ GameObject:
   - component: {fileID: 1807573277267813109}
   - component: {fileID: 7696316568020944394}
   - component: {fileID: 8982300142546407880}
+  - component: {fileID: 7419560782037688185}
   m_Layer: 8
   m_Name: Enemy_Grunt
   m_TagString: Untagged
@@ -306,3 +307,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f86d3a8cd3da488d1c4c103b7242c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+--- !u!114 &7419560782037688185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5230260685523997180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b1605b887ef40119f8d2b375e4df88c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LootDropper
+  lootTable: {fileID: 11400000, guid: 157649127f354d47a3cfe586efaca59e, type: 2}

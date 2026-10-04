@@ -1,18 +1,17 @@
 using UnityEngine;
 
-public class PowerUpPickup : MonoBehaviour
+public class PowerUpPickup : Pickup
 {
     [SerializeField] private PowerUpData powerUpData;
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (!other.CompareTag("Player")) return;
+    public PowerUpData Data => powerUpData;
 
-        ApplyEffect(other.gameObject);
-        Destroy(gameObject);
-    }
+    public override string CollectMessage =>
+        powerUpData.type == PowerUpType.Health
+            ? $"+{Mathf.RoundToInt(powerUpData.value)} Health"
+            : $"{powerUpData.powerUpName}!";
 
-    private void ApplyEffect(GameObject player)
+    protected override bool TryApply(GameObject player)
     {
         switch (powerUpData.type)
         {
@@ -26,5 +25,6 @@ public class PowerUpPickup : MonoBehaviour
                 player.GetComponent<PlayerCombat>()?.ApplyDamageBoost(powerUpData.value, powerUpData.duration);
                 break;
         }
+        return true;
     }
 }
