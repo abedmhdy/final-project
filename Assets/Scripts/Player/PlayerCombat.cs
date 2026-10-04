@@ -12,6 +12,7 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private LayerMask enemyLayer;
 
     private Animator animator;
+    private SpriteRenderer spriteRenderer;
     private InputAction attackAction;
     private float lastAttackTime = -999f;
     private float damageMultiplier = 1f;
@@ -19,6 +20,7 @@ public class PlayerCombat : MonoBehaviour
     private void Awake()
     {
         animator = GetComponentInChildren<Animator>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         attackAction = inputActions.FindActionMap("Gameplay").FindAction("Attack");
     }
 
@@ -36,6 +38,9 @@ public class PlayerCombat : MonoBehaviour
 
     private void OnAttackPerformed(InputAction.CallbackContext context)
     {
+        // Input callbacks still fire while the game is frozen (Paused,
+        // Game Over, Victory), so ignore attacks then.
+        if (Time.timeScale == 0f) return;
         if (Time.time < lastAttackTime + attackCooldown) return;
 
         lastAttackTime = Time.time;
@@ -45,7 +50,7 @@ public class PlayerCombat : MonoBehaviour
 
     private void DealDamageToEnemiesInRange()
     {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(GetAttackCenter(), attackRange, enemyLayer);
         int damage = Mathf.RoundToInt(attackDamage * damageMultiplier);
 
         foreach (Collider2D hit in hits)
@@ -56,6 +61,15 @@ public class PlayerCombat : MonoBehaviour
                 enemyHealth.TakeDamage(damage);
             }
         }
+    }
+
+    // attackPoint sits on the right of the player (the way the sprite is
+    // drawn). When the sprite is flipped to face left, mirror it to the left.
+    private Vector2 GetAttackCenter()
+    {
+        Vector2 offset = attackPoint.position - transform.position;
+        if (spriteRenderer != null && spriteRenderer.flipX) offset.x = -offset.x;
+        return (Vector2)transform.position + offset;
     }
 
     public void ApplyDamageBoost(float multiplier, float duration)
@@ -74,7 +88,8 @@ public class PlayerCombat : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         if (attackPoint == null) return;
+        if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+        Gizmos.DrawWireSphere(GetAttackCenter(), attackRange);
     }
 }

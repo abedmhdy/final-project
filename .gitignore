@@ -72,3 +72,8 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Unity Asset Store art ("2D Roguelike" by Unity Technologies) may not be
+# redistributed in a public repository. Keep the .meta files (they hold the
+# GUIDs our prefabs/scenes use) but add the PNGs locally. See README.md.
+/[Aa]ssets/Roguelike2D/TutorialAssets/Sprites/*.png
