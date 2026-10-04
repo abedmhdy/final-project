@@ -161,7 +161,7 @@ death event to know when to advance, and unlocks the exit door and fires
 | Level | Waves | Enemy mix | Weapon progression |
 |---|---|---|---|
 | Level 1 | 1 | 3 Grunts | Start with the **Sword**. Health and Speed pickups in the room. |
-| Level 2 | 2 | Grunts + Brutes | Start with the Sword. Clearing wave 1 always drops an **Axe**. |
+| Level 2 | 2 | Grunts + Brutes | Start with the Sword. Clearing wave 1 always drops an **Axe**. 3 Health pickups and a Speed pickup in the room. |
 | Level 3 | 3 | Grunts + Brutes, final wave is the toughest | Start with the Axe. Clearing wave 1 always drops the **Hammer**, before the two hardest waves. |
 
 Weapon stats (`Assets/Data/Weapons`):
