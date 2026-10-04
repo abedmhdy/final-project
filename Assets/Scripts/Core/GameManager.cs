@@ -19,6 +19,10 @@ public class GameManager : MonoBehaviour
     private InputAction pauseAction;
     private int currentLevelIndex = -1;
 
+    // 1-based, for display (0 while in the main menu).
+    public int CurrentLevelNumber => currentLevelIndex + 1;
+    public int LevelCount => levelSceneNames.Length;
+
     private void Awake()
     {
         // Every scene has its own GameManager so the game still works if you
@@ -33,6 +37,15 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         pauseAction = inputActions.FindActionMap("Gameplay").FindAction("Pause");
+
+        // Pressing Play inside a level scene (instead of the MainMenu) starts
+        // that level directly, so the level index and state must match it.
+        int sceneLevelIndex = System.Array.IndexOf(levelSceneNames, SceneManager.GetActiveScene().name);
+        if (sceneLevelIndex >= 0)
+        {
+            currentLevelIndex = sceneLevelIndex;
+            GameStateManager.ChangeState(GameState.Playing);
+        }
     }
 
     private void OnEnable()

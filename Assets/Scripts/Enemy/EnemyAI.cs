@@ -29,6 +29,9 @@ public class EnemyAI : MonoBehaviour
 
     private int currentPatrolIndex;
     private float lastAttackTime = -999f;
+    private float knockbackEndTime;
+
+    private const float KnockbackDuration = 0.15f;
 
     private void Awake()
     {
@@ -50,6 +53,9 @@ public class EnemyAI : MonoBehaviour
     private void Update()
     {
         if (currentState == EnemyState.Dead || player == null) return;
+
+        // While being knocked back, let the push play out instead of moving.
+        if (Time.time < knockbackEndTime) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
@@ -143,6 +149,15 @@ public class EnemyAI : MonoBehaviour
         {
             spriteRenderer.flipX = directionX > 0f;
         }
+    }
+
+    // Called by PlayerCombat when a hit lands. Heavier weapons push harder.
+    public void ApplyKnockback(Vector2 velocity)
+    {
+        if (currentState == EnemyState.Dead) return;
+
+        rb.linearVelocity = velocity;
+        knockbackEndTime = Time.time + KnockbackDuration;
     }
 
     public void SetState(EnemyState newState)

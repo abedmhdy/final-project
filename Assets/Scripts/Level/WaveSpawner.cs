@@ -11,13 +11,17 @@ public class EnemySpawnInfo
 }
 
 // A group of enemies that spawns together and must be fully defeated
-// before the next wave starts.
+// before the next wave starts. A wave can have an optional reward (for
+// example a weapon upgrade) that appears once the wave is cleared, so the
+// level's progression never depends on random drops.
 [Serializable]
 public class Wave
 {
     public string waveName = "Wave";
     public EnemySpawnInfo[] enemiesToSpawn;
     public float delayBeforeWave = 1f;
+    public GameObject clearReward;
+    public Transform rewardSpawnPoint;
 }
 
 // Runs the waves for a level in order. Waits for every enemy in a wave to
@@ -32,6 +36,7 @@ public class WaveSpawner : MonoBehaviour
 
     public static event Action<int, int> OnWaveChanged;
     public static event Action OnAllWavesCleared;
+    public static event Action<GameObject> OnRewardSpawned;
 
     private void Start()
     {
@@ -49,6 +54,8 @@ public class WaveSpawner : MonoBehaviour
             SpawnWave(wave);
 
             yield return new WaitUntil(() => aliveEnemies.Count == 0);
+
+            SpawnReward(wave);
         }
 
         if (exitDoor != null)
@@ -68,6 +75,14 @@ public class WaveSpawner : MonoBehaviour
             aliveEnemies.Add(enemyHealth);
             enemyHealth.OnDied += HandleEnemyDied;
         }
+    }
+
+    private void SpawnReward(Wave wave)
+    {
+        if (wave.clearReward == null || wave.rewardSpawnPoint == null) return;
+
+        GameObject reward = Instantiate(wave.clearReward, wave.rewardSpawnPoint.position, Quaternion.identity);
+        OnRewardSpawned?.Invoke(reward);
     }
 
     private void HandleEnemyDied(EnemyHealth enemy)

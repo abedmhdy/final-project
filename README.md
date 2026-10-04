@@ -22,17 +22,18 @@ for the full game/architecture description required for submission.
 
 ## Controls
 - Move: **WASD** or **Arrow Keys**
-- Attack: **Space** or **Left Mouse Button**
+- Attack: **Space** or **Left Mouse Button** (walk over a weapon to pick it up)
 - Pause / Resume: **Escape**
 
 ## Project layout
 ```
 Assets/
-  Scripts/    Gameplay code (Core, Player, Enemy, PowerUps, Level, UI)
+  Scripts/    Gameplay code (Core, Player, Enemy, PowerUps, Weapons, Loot, Level, UI, Effects)
   Scenes/     MainMenu, Level1, Level2, Level3
-  Prefabs/    Player, enemies, pickups, exit door, wall, GameManager
-  Data/       EnemyData / PowerUpData ScriptableObject assets
+  Prefabs/    Player, enemies, pickups (power-ups and weapons), exit door, wall, GameManager
+  Data/       EnemyData / PowerUpData / WeaponData / LootTable ScriptableObject assets
   Animations/ Animator Controllers + clips for player/enemies
   Input/      GameControls.inputactions (New Input System)
+  Art/        Our own weapon icons (Sword, Axe, Hammer)
   Roguelike2D/ Sprites from Unity's free "2D Roguelike" Asset Store sample
 ```
