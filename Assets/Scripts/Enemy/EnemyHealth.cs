@@ -2,8 +2,9 @@ using System;
 using UnityEngine;
 
 // Tracks one enemy's health, using the stats from the EnemyData asset
-// assigned on its EnemyAI. Raises OnDied so the WaveSpawner can notice
-// this enemy is gone without EnemyHealth needing to know what a wave is.
+// assigned on its EnemyAI. Raises OnDied so the WaveSpawner (and the
+// LootDropper) can react to this enemy's death without EnemyHealth needing
+// to know what a wave or a drop is.
 [RequireComponent(typeof(EnemyAI))]
 public class EnemyHealth : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class EnemyHealth : MonoBehaviour
     private Collider2D bodyCollider;
     private int currentHealth;
     private bool isDead;
+
+    private static readonly Color DamageNumberColor = new Color(1f, 0.85f, 0.3f);
 
     public event Action<EnemyHealth> OnDied;
 
@@ -28,6 +31,7 @@ public class EnemyHealth : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= amount;
+        DamagePopup.Spawn(transform.position + Vector3.up * 0.6f, amount.ToString(), DamageNumberColor);
 
         if (currentHealth <= 0)
         {
